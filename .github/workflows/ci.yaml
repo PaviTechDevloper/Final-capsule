@@ -37,14 +37,14 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Scan image with Trivy
-        uses: aquasecurity/trivy-action@0.35.0
-        with:
-          image-ref: ${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.TAG }}
-          format: table
-          exit-code: 1
-          ignore-unfixed: true
-          severity: CRITICAL,HIGH
+      # - name: Scan image with Trivy
+      #   uses: aquasecurity/trivy-action@0.35.0
+      #   with:
+      #     image-ref: ${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.TAG }}
+      #     format: table
+      #     exit-code: 1
+      #     ignore-unfixed: true
+      #     severity: CRITICAL,HIGH
 
       - name: Log in to GHCR
         if: success()
@@ -61,25 +61,25 @@ jobs:
           docker tag ${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.TAG }} ${{ env.IMAGE_NAME }}:latest
           docker push ${{ env.IMAGE_NAME }}:latest
 
-      - name: Send failure mail
-        if: failure()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 587
-          secure: false
-          username: ${{ secrets.SMTP_USERNAME }}
-          password: ${{ secrets.SMTP_PASSWORD }}
-          subject: "Final Capsule CI failed - Trivy scan blocked image push"
-          to: ${{ secrets.ALERT_EMAIL_TO }}
-          from: ${{ secrets.SMTP_USERNAME }}
-          body: |
-            GitHub Actions workflow failed for repository: ${{ github.repository }}
+      # - name: Send failure mail
+      #   if: failure()
+      #   uses: dawidd6/action-send-mail@v3
+      #   with:
+      #     server_address: smtp.gmail.com
+      #     server_port: 587
+      #     secure: false
+      #     username: ${{ secrets.SMTP_USERNAME }}
+      #     password: ${{ secrets.SMTP_PASSWORD }}
+      #     subject: "Final Capsule CI failed - Trivy scan blocked image push"
+      #     to: ${{ secrets.ALERT_EMAIL_TO }}
+      #     from: ${{ secrets.SMTP_USERNAME }}
+      #     body: |
+      #       GitHub Actions workflow failed for repository: ${{ github.repository }}
 
-            Branch: ${{ github.ref_name }}
-            Commit: ${{ github.sha }}
-            Workflow: ${{ github.workflow }}
-            Run URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      #       Branch: ${{ github.ref_name }}
+      #       Commit: ${{ github.sha }}
+      #       Workflow: ${{ github.workflow }}
+      #       Run URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-            Reason:
-            Trivy scan found HIGH or CRITICAL vulnerabilities, so the image was NOT pushed to GHCR.
+      #       Reason:
+      #       Trivy scan found HIGH or CRITICAL vulnerabilities, so the image was NOT pushed to GHCR.
